@@ -60,6 +60,7 @@ func NewFEC(k, n int) (*FEC, error) {
 	enc_matrix := make([]byte, n*k)
 	temp_matrix := make([]byte, n*k)
 	createInvertedVdm(temp_matrix, k)
+	fmt.Println(temp_matrix)
 
 	for i := k * k; i < len(temp_matrix); i++ {
 		temp_matrix[i] = gf_exp[((i/k)*(i%k))%255]
@@ -86,6 +87,14 @@ func NewFEC(k, n int) (*FEC, error) {
 	}
 
 	fmt.Println(enc_matrix)
+
+	// vand_matrix has more columns than rows
+	// k rows, n columns.
+	vand_matrix1, err := vandermonde(n+1, k+1)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(vand_matrix1)
 
 	// vand_matrix has more columns than rows
 	// k rows, n columns.

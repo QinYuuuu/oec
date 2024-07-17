@@ -36,6 +36,7 @@ package oec
 import (
 	"bytes"
 	"errors"
+	"fmt"
 )
 
 type pivotSearcher struct {
@@ -159,7 +160,7 @@ func createInvertedVdm(vdm []byte, k int) {
 		}
 		c[k-1] ^= gf_exp[i]
 	}
-
+	fmt.Println(c)
 	for row := 0; row < k; row++ {
 		index := 0
 		if row != 0 {
