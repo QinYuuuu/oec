@@ -6,13 +6,13 @@ import (
 
 // GFp 表示模素数的有限域
 type GFp struct {
-	P *big.Int // 模数 P
+	p *big.Int // 模数 P
 }
 
 // NewGFp 返回一个新的模素数有限域
-func NewGFp(p int64) *GFp {
+func NewGFp(p *big.Int) *GFp {
 	return &GFp{
-		P: big.NewInt(p),
+		p: p,
 	}
 }
 
@@ -21,7 +21,7 @@ func (f *GFp) Add(a, b []byte) []byte {
 	x := new(big.Int).SetBytes(a)
 	y := new(big.Int).SetBytes(b)
 	result := new(big.Int).Add(x, y)
-	result.Mod(result, f.P)
+	result.Mod(result, f.p)
 	return result.Bytes()
 }
 
@@ -30,7 +30,7 @@ func (f *GFp) Subtract(a, b []byte) []byte {
 	x := new(big.Int).SetBytes(a)
 	y := new(big.Int).SetBytes(b)
 	result := new(big.Int).Sub(x, y)
-	result.Mod(result, f.P)
+	result.Mod(result, f.p)
 	return result.Bytes()
 }
 
@@ -39,7 +39,7 @@ func (f *GFp) Multiply(a, b []byte) []byte {
 	x := new(big.Int).SetBytes(a)
 	y := new(big.Int).SetBytes(b)
 	result := new(big.Int).Mul(x, y)
-	result.Mod(result, f.P)
+	result.Mod(result, f.p)
 	return result.Bytes()
 }
 
@@ -47,16 +47,16 @@ func (f *GFp) Multiply(a, b []byte) []byte {
 func (f *GFp) Divide(a, b []byte) []byte {
 	x := new(big.Int).SetBytes(a)
 	y := new(big.Int).SetBytes(b)
-	inverse := new(big.Int).ModInverse(y, f.P)
+	inverse := new(big.Int).ModInverse(y, f.p)
 	result := new(big.Int).Mul(x, inverse)
-	result.Mod(result, f.P)
+	result.Mod(result, f.p)
 	return result.Bytes()
 }
 
 // Inverse 计算元素在模 P 下的逆元
 func (f *GFp) Inverse(a []byte) []byte {
 	x := new(big.Int).SetBytes(a)
-	return new(big.Int).ModInverse(x, f.P).Bytes()
+	return new(big.Int).ModInverse(x, f.p).Bytes()
 }
 
 // Zero 返回模 P 下的零元素

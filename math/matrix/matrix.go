@@ -1,10 +1,3 @@
-/**
- * Matrix Algebra over an 8-bit Galois Field
- *
- * Copyright 2015, Klaus Post
- * Copyright 2015, Backblaze, Inc.
- */
-
 package matrix
 
 import (
@@ -179,7 +172,7 @@ var errNotSquare = errors.New("only square matrices can be inverted")
 // Invert returns the inverse of this matrix.
 // Returns ErrSingular when the matrix is singular and doesn't have an inverse.
 // The matrix must be square, otherwise ErrNotSquare is returned.
-func (m Matrix) Invert() (Matrix, error) {
+func (m Matrix) Invert(Mul func(byte, byte) byte, Inverse func(byte) byte) (Matrix, error) {
 	if !m.IsSquare() {
 		return nil, errNotSquare
 	}
@@ -188,7 +181,7 @@ func (m Matrix) Invert() (Matrix, error) {
 	work, _ := identityMatrix(size)
 	work, _ = m.Augment(work)
 
-	err := work.gaussianElimination()
+	err := work.gaussianElimination(Mul, Inverse)
 	if err != nil {
 		return nil, err
 	}
@@ -196,7 +189,7 @@ func (m Matrix) Invert() (Matrix, error) {
 	return work.SubMatrix(0, size, size, size*2)
 }
 
-func (m Matrix) gaussianElimination() error {
+func (m Matrix) gaussianElimination(Mul func(byte, byte) byte, Inverse func(byte) byte) error {
 	rows := len(m)
 	columns := len(m[0])
 	// Clear out the part below the main diagonal and scale the main
@@ -221,9 +214,9 @@ func (m Matrix) gaussianElimination() error {
 		}
 		// Scale to 1.
 		if m[r][r] != 1 {
-			scale := galOneOver(m[r][r])
+			scale := Inverse(m[r][r])
 			for c := 0; c < columns; c++ {
-				m[r][c] = galMultiply(m[r][c], scale)
+				m[r][c] = Mul(m[r][c], scale)
 			}
 		}
 		// Make everything below the 1 be a 0 by subtracting
@@ -233,7 +226,7 @@ func (m Matrix) gaussianElimination() error {
 			if m[rowBelow][r] != 0 {
 				scale := m[rowBelow][r]
 				for c := 0; c < columns; c++ {
-					m[rowBelow][c] ^= galMultiply(scale, m[r][c])
+					m[rowBelow][c] ^= Mul(scale, m[r][c])
 				}
 			}
 		}
@@ -245,7 +238,7 @@ func (m Matrix) gaussianElimination() error {
 			if m[rowAbove][d] != 0 {
 				scale := m[rowAbove][d]
 				for c := 0; c < columns; c++ {
-					m[rowAbove][c] ^= galMultiply(scale, m[d][c])
+					m[rowAbove][c] ^= Mul(scale, m[d][c])
 				}
 
 			}
