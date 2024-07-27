@@ -4,19 +4,19 @@ import (
 	"math/big"
 )
 
-// GFp 表示模素数的有限域
+// GFp represents a finite field modulo a prime number
 type GFp struct {
 	p *big.Int // 模数 P
 }
 
-// NewGFp 返回一个新的模素数有限域
+// NewGFp returns a new finite field modulo a prime number
 func NewGFp(p *big.Int) *GFp {
 	return &GFp{
 		p: p,
 	}
 }
 
-// Add 在模 P 下执行加法
+// Add performs addition modulo P
 func (f *GFp) Add(a, b []byte) []byte {
 	x := new(big.Int).SetBytes(a)
 	y := new(big.Int).SetBytes(b)
@@ -25,7 +25,7 @@ func (f *GFp) Add(a, b []byte) []byte {
 	return result.Bytes()
 }
 
-// Subtract 在模 P 下执行减法
+// Subtract performs subtraction modulo P
 func (f *GFp) Subtract(a, b []byte) []byte {
 	x := new(big.Int).SetBytes(a)
 	y := new(big.Int).SetBytes(b)
