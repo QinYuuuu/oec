@@ -279,16 +279,3 @@ func vandermonde(rows, cols int) (matrix, error) {
 	}
 	return result, nil
 }
-
-func vandermonde1(rows, cols int, Exp func(byte, byte) byte) (matrix, error) {
-	result, err := newMatrix(rows, cols)
-	if err != nil {
-		return nil, err
-	}
-	for r, row := range result {
-		for c := range row {
-			result[r][c] = Exp(byte(r+1), byte(c))
-		}
-	}
-	return result, nil
-}

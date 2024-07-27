@@ -1,4 +1,11 @@
-package matrix
+/**
+ * Matrix Algebra over an 8-bit Galois Field
+ *
+ * Copyright 2015, Klaus Post
+ * Copyright 2015, Backblaze, Inc.
+ */
+
+package reedsolomon
 
 import (
 	"errors"
@@ -7,11 +14,11 @@ import (
 	"strings"
 )
 
-// Matrix byte[row][col]
-type Matrix [][]byte
+// byte[row][col]
+type matrix [][]byte
 
 // newMatrix returns a matrix of zeros.
-func newMatrix(rows, cols int) (Matrix, error) {
+func newMatrix(rows, cols int) (matrix, error) {
 	if rows <= 0 {
 		return nil, errInvalidRowSize
 	}
@@ -19,7 +26,7 @@ func newMatrix(rows, cols int) (Matrix, error) {
 		return nil, errInvalidColSize
 	}
 
-	m := make([][]byte, rows)
+	m := matrix(make([][]byte, rows))
 	for i := range m {
 		m[i] = make([]byte, cols)
 	}
@@ -28,11 +35,23 @@ func newMatrix(rows, cols int) (Matrix, error) {
 
 // NewMatrixData initializes a matrix with the given row-major data.
 // Note that data is not copied from input.
-func newMatrixData(data [][]byte) (Matrix, error) {
-	m := Matrix(data)
+func newMatrixData(data [][]byte) (matrix, error) {
+	m := matrix(data)
 	err := m.Check()
 	if err != nil {
 		return nil, err
+	}
+	return m, nil
+}
+
+// IdentityMatrix returns an identity matrix of the given size.
+func identityMatrix(size int) (matrix, error) {
+	m, err := newMatrix(size, size)
+	if err != nil {
+		return nil, err
+	}
+	for i := range m {
+		m[i][i] = 1
 	}
 	return m, nil
 }
@@ -46,10 +65,7 @@ var errInvalidColSize = errors.New("invalid column size")
 // errColSizeMismatch is returned if the size of matrix columns mismatch.
 var errColSizeMismatch = errors.New("column size is not the same for all rows")
 
-// errMatrixSize is returned if matrix dimensions are doesn't match.
-var errMatrixSize = errors.New("matrix sizes do not match")
-
-func (m Matrix) Check() error {
+func (m matrix) Check() error {
 	rows := len(m)
 	if rows == 0 {
 		return errInvalidRowSize
@@ -70,7 +86,7 @@ func (m Matrix) Check() error {
 // String returns a human-readable string of the matrix contents.
 //
 // Example: [[1, 2], [3, 4]]
-func (m Matrix) String() string {
+func (m matrix) String() string {
 	rowOut := make([]string, 0, len(m))
 	for _, row := range m {
 		colOut := make([]string, 0, len(row))
@@ -79,25 +95,12 @@ func (m Matrix) String() string {
 		}
 		rowOut = append(rowOut, "["+strings.Join(colOut, ", ")+"]")
 	}
-	return strings.Join(rowOut, ",\n")
-}
-
-// IdentityMatrix returns an identity matrix of the given size.
-func identityMatrix(size int) (Matrix, error) {
-	m, err := newMatrix(size, size)
-	if err != nil {
-		return nil, err
-	}
-	for i := range m {
-		m[i][i] = 1
-	}
-	return m, nil
+	return "[" + strings.Join(rowOut, ", ") + "]"
 }
 
 // Multiply multiplies this matrix (the one on the left) by another
 // matrix (the one on the right) and returns a new matrix with the result.
-// The Mul on elements in the matrix is defined in use and can be over GF(p), GF(2^k).
-func (m Matrix) Multiply(right Matrix, Mul func(byte, byte) byte) (Matrix, error) {
+func (m matrix) Multiply(right matrix) (matrix, error) {
 	if len(m[0]) != len(right) {
 		return nil, fmt.Errorf("columns on left (%d) is different than rows on right (%d)", len(m[0]), len(right))
 	}
@@ -106,7 +109,7 @@ func (m Matrix) Multiply(right Matrix, Mul func(byte, byte) byte) (Matrix, error
 		for c := range row {
 			var value byte
 			for i := range m[0] {
-				value ^= Mul(m[r][i], right[i][c])
+				value ^= galMultiply(m[r][i], right[i][c])
 			}
 			result[r][c] = value
 		}
@@ -115,7 +118,7 @@ func (m Matrix) Multiply(right Matrix, Mul func(byte, byte) byte) (Matrix, error
 }
 
 // Augment returns the concatenation of this matrix and the matrix on the right.
-func (m Matrix) Augment(right Matrix) (Matrix, error) {
+func (m matrix) Augment(right matrix) (matrix, error) {
 	if len(m) != len(right) {
 		return nil, errMatrixSize
 	}
@@ -133,7 +136,10 @@ func (m Matrix) Augment(right Matrix) (Matrix, error) {
 	return result, nil
 }
 
-func (m Matrix) SameSize(n Matrix) error {
+// errMatrixSize is returned if matrix dimensions are doesn't match.
+var errMatrixSize = errors.New("matrix sizes do not match")
+
+func (m matrix) SameSize(n matrix) error {
 	if len(m) != len(n) {
 		return errMatrixSize
 	}
@@ -146,7 +152,7 @@ func (m Matrix) SameSize(n Matrix) error {
 }
 
 // SubMatrix returns a part of this matrix. Data is copied.
-func (m Matrix) SubMatrix(rmin, cmin, rmax, cmax int) (Matrix, error) {
+func (m matrix) SubMatrix(rmin, cmin, rmax, cmax int) (matrix, error) {
 	result, err := newMatrix(rmax-rmin, cmax-cmin)
 	if err != nil {
 		return nil, err
@@ -161,7 +167,7 @@ func (m Matrix) SubMatrix(rmin, cmin, rmax, cmax int) (Matrix, error) {
 }
 
 // SwapRows Exchanges two rows in the matrix.
-func (m Matrix) SwapRows(r1, r2 int) error {
+func (m matrix) SwapRows(r1, r2 int) error {
 	if r1 < 0 || len(m) <= r1 || r2 < 0 || len(m) <= r2 {
 		return errInvalidRowSize
 	}
@@ -170,7 +176,7 @@ func (m Matrix) SwapRows(r1, r2 int) error {
 }
 
 // IsSquare will return true if the matrix is square, otherwise false.
-func (m Matrix) IsSquare() bool {
+func (m matrix) IsSquare() bool {
 	return len(m) == len(m[0])
 }
 
@@ -183,7 +189,7 @@ var errNotSquare = errors.New("only square matrices can be inverted")
 // Invert returns the inverse of this matrix.
 // Returns ErrSingular when the matrix is singular and doesn't have an inverse.
 // The matrix must be square, otherwise ErrNotSquare is returned.
-func (m Matrix) Invert(Mul func(byte, byte) byte, Inverse func(byte) byte) (Matrix, error) {
+func (m matrix) Invert() (matrix, error) {
 	if !m.IsSquare() {
 		return nil, errNotSquare
 	}
@@ -192,7 +198,7 @@ func (m Matrix) Invert(Mul func(byte, byte) byte, Inverse func(byte) byte) (Matr
 	work, _ := identityMatrix(size)
 	work, _ = m.Augment(work)
 
-	err := work.gaussianElimination(Mul, Inverse)
+	err := work.gaussianElimination()
 	if err != nil {
 		return nil, err
 	}
@@ -200,7 +206,7 @@ func (m Matrix) Invert(Mul func(byte, byte) byte, Inverse func(byte) byte) (Matr
 	return work.SubMatrix(0, size, size, size*2)
 }
 
-func (m Matrix) gaussianElimination(Mul func(byte, byte) byte, Inverse func(byte) byte) error {
+func (m matrix) gaussianElimination() error {
 	rows := len(m)
 	columns := len(m[0])
 	// Clear out the part below the main diagonal and scale the main
@@ -225,9 +231,9 @@ func (m Matrix) gaussianElimination(Mul func(byte, byte) byte, Inverse func(byte
 		}
 		// Scale to 1.
 		if m[r][r] != 1 {
-			scale := Inverse(m[r][r])
+			scale := galOneOver(m[r][r])
 			for c := 0; c < columns; c++ {
-				m[r][c] = Mul(m[r][c], scale)
+				m[r][c] = galMultiply(m[r][c], scale)
 			}
 		}
 		// Make everything below the 1 be a 0 by subtracting
@@ -237,7 +243,7 @@ func (m Matrix) gaussianElimination(Mul func(byte, byte) byte, Inverse func(byte
 			if m[rowBelow][r] != 0 {
 				scale := m[rowBelow][r]
 				for c := 0; c < columns; c++ {
-					m[rowBelow][c] ^= Mul(scale, m[r][c])
+					m[rowBelow][c] ^= galMultiply(scale, m[r][c])
 				}
 			}
 		}
@@ -249,7 +255,7 @@ func (m Matrix) gaussianElimination(Mul func(byte, byte) byte, Inverse func(byte
 			if m[rowAbove][d] != 0 {
 				scale := m[rowAbove][d]
 				for c := 0; c < columns; c++ {
-					m[rowAbove][c] ^= Mul(scale, m[d][c])
+					m[rowAbove][c] ^= galMultiply(scale, m[d][c])
 				}
 
 			}
@@ -258,16 +264,17 @@ func (m Matrix) gaussianElimination(Mul func(byte, byte) byte, Inverse func(byte
 	return nil
 }
 
-// Vandermonde creates a Vandermonde matrix, which is guaranteed to have the
-// property that any subset of rows that forms a square matrix is invertible.
-func Vandermonde(rows, cols int, Exp func(byte, byte) byte) (Matrix, error) {
+// Create a Vandermonde matrix, which is guaranteed to have the
+// property that any subset of rows that forms a square matrix
+// is invertible.
+func vandermonde(rows, cols int) (matrix, error) {
 	result, err := newMatrix(rows, cols)
 	if err != nil {
 		return nil, err
 	}
 	for r, row := range result {
 		for c := range row {
-			result[r][c] = Exp(byte(r+1), byte(c))
+			result[r][c] = galExp(byte(r), c)
 		}
 	}
 	return result, nil
