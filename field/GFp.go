@@ -53,6 +53,13 @@ func (f *GFp) Divide(a, b []byte) []byte {
 	return result.Bytes()
 }
 
+func (f *GFp) Exp(a, n []byte) []byte {
+	x := new(big.Int).SetBytes(a)
+	y := new(big.Int).SetBytes(n)
+	result := new(big.Int).Exp(x, y, f.p)
+	return result.Bytes()
+}
+
 // Inverse 计算元素在模 P 下的逆元
 func (f *GFp) Inverse(a []byte) []byte {
 	x := new(big.Int).SetBytes(a)

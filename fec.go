@@ -57,36 +57,36 @@ func NewFEC(k, n int) (*FEC, error) {
 		return nil, errors.New("requires 1 <= k <= n <= 256")
 	}
 
-	enc_matrix := make([]byte, n*k)
-	temp_matrix := make([]byte, n*k)
-	createInvertedVdm(temp_matrix, k)
-	fmt.Println(temp_matrix)
+	encMatrix := make([]byte, n*k)
+	tempMatrix := make([]byte, n*k)
+	createInvertedVdm(tempMatrix, k)
+	fmt.Println(tempMatrix)
 
-	for i := k * k; i < len(temp_matrix); i++ {
-		temp_matrix[i] = gf_exp[((i/k)*(i%k))%255]
+	for i := k * k; i < len(tempMatrix); i++ {
+		tempMatrix[i] = gf_exp[((i/k)*(i%k))%255]
 	}
 	for i := 0; i < n*k; i = i + k {
-		fmt.Println(temp_matrix[i : i+k])
+		fmt.Println(tempMatrix[i : i+k])
 	}
 	for i := 0; i < k; i++ {
-		enc_matrix[i*(k+1)] = 1
+		encMatrix[i*(k+1)] = 1
 	}
 	for i := 0; i < n*k; i = i + k {
-		fmt.Println(enc_matrix[i : i+k])
+		fmt.Println(encMatrix[i : i+k])
 	}
 	for row := k * k; row < n*k; row += k {
 		for col := 0; col < k; col++ {
-			pa := temp_matrix[row:]
-			pb := temp_matrix[col:]
+			pa := tempMatrix[row:]
+			pb := tempMatrix[col:]
 			acc := byte(0)
 			for i := 0; i < k; i, pa, pb = i+1, pa[1:], pb[k:] {
 				acc ^= gf_mul_table[pa[0]][pb[0]]
 			}
-			enc_matrix[row+col] = acc
+			encMatrix[row+col] = acc
 		}
 	}
 
-	fmt.Println(enc_matrix)
+	fmt.Println(encMatrix)
 
 	// vand_matrix has more columns than rows
 	// k rows, n columns.
@@ -114,7 +114,7 @@ func NewFEC(k, n int) (*FEC, error) {
 	return &FEC{
 		k:           k,
 		n:           n,
-		enc_matrix:  enc_matrix,
+		enc_matrix:  encMatrix,
 		vand_matrix: vand_matrix,
 	}, nil
 }
