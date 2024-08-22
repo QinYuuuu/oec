@@ -7,16 +7,16 @@ import (
 	"oec/matrix"
 )
 
-// OECGFp online-error correction algorithm in modulo P Field
+// RSGFp online-error correction algorithm in modulo P Field
 // k required pieces and n total pieces.
-type OECGFp struct {
+type RSGFp struct {
 	k         int
 	n         int
 	encMatrix matrix.P
 	p         *big.Int
 }
 
-func NewOECGFp(k, n int, p *big.Int) (*OECGFp, error) {
+func NewRSGFp(k, n int, p *big.Int) (*RSGFp, error) {
 	if k <= 0 || n <= 0 || k > n {
 		return nil, errors.New("requires 1 <= k <= n <= 256")
 	}
@@ -26,7 +26,7 @@ func NewOECGFp(k, n int, p *big.Int) (*OECGFp, error) {
 		return nil, err
 	}
 	fmt.Println(encMatrix.String())
-	return &OECGFp{
+	return &RSGFp{
 		k:         k,
 		n:         n,
 		encMatrix: encMatrix,
@@ -39,7 +39,7 @@ func NewOECGFp(k, n int, p *big.Int) (*OECGFp, error) {
 // if there were too few shards to reconstruct the missing data.
 var ErrTooFewShards = errors.New("too few shards given")
 
-func (oec *OECGFp) Encode(input [][]byte) ([][]byte, error) {
+func (oec *RSGFp) Encode(input [][]byte) ([][]byte, error) {
 	if len(input) != oec.k {
 		return nil, ErrTooFewShards
 	}
