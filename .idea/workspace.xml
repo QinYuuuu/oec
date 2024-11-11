@@ -5,9 +5,103 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="628d3798-421e-4a22-b263-3bef902bd10c" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/reedsolomonP/berlekamp_welch.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/reedsolomonP/share.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/utils/LagrangeInterpolation.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/utils/polynomial.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/utils/polynomial_test.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/utils/utils.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/utils/vector.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/utils/vector_test.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/addmul_amd64.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/addmul_amd64.s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/addmul_noasm.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/addmul_tables_amd64.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/berlekamp_welch.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/fec.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/field/GFp.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/field/field.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/galois.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gf_alg.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/math.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/matrix.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/matrix/errors.go" beforeDir="false" afterPath="$PROJECT_DIR$/reedsolomonP/errors.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/matrix/matrix_2n.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/matrix/matrix_P.go" beforeDir="false" afterPath="$PROJECT_DIR$/reedsolomonP/matrix_P.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/matrix/matrix_P_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/LICENSE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/_gen/cleanup.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/_gen/gen-arm-neon.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/_gen/gen-arm-sve.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/_gen/gen.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/_gen/gf16.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/_gen/gf8.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/_gen/go.mod" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/_gen/go.sum" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/_gen/nopshufb.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/_gen/pshufb.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/benchmark/main.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/examples/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/examples/simple-decoder.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/examples/simple-encoder.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/examples/stream-decoder.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/examples/stream-encoder.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/examples_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/galois.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/galois_amd64.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/galois_amd64.s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/galois_amd64_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/galois_arm64.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/galois_arm64.s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/galois_arm64_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/galois_gen_amd64.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/galois_gen_amd64.s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/galois_gen_arm64.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/galois_gen_arm64.s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/galois_gen_none.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/galois_gen_nopshufb_amd64.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/galois_gen_nopshufb_amd64.s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/galois_gen_switch_amd64.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/galois_gen_switch_arm64.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/galois_gen_switch_nopshufb_amd64.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/galois_gen_switch_nopshufb_arm64.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/galois_noasm.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/galois_nopshufb_amd64.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/galois_ppc64le.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/galois_ppc64le.s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/galois_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/gentables.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/inversion_tree.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/inversion_tree_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/leopard.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/leopard8.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/leopard_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/matrix.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/matrix_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/options.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/race_none_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/race_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/reedsolomon.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/reedsolomon_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/streaming.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/streaming_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/testlevel.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/unsafe.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/unsafe_disabled.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/xor_arm64.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/xor_arm64.s" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomon/xor_noasm.go" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/reedsolomonP/reedsolomonP.go" beforeDir="false" afterPath="$PROJECT_DIR$/reedsolomonP/reedsolomonP.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/reedsolomonP/reedsolomonP_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/reedsolomonP/reedsolomonP_test.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reedsolomonP/reedsolomonP_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/reedsolomonP/reedsolomonP_test" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tables.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/main.go" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,7 +115,7 @@
       </list>
     </option>
   </component>
-  <component name="GOROOT" url="file://$PROJECT_DIR$/../../../Go/go1221" />
+  <component name="GOROOT" url="file://$PROJECT_DIR$/../../../../Program Files/Go" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -34,40 +128,54 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
-    &quot;Go Build.go build oec/test.executor&quot;: &quot;Run&quot;,
-    &quot;Go Test.TestMatrixIdentity in oec/matrix.executor&quot;: &quot;Run&quot;,
-    &quot;Go Test.TestMatrixIdentityP in oec/matrix (1).executor&quot;: &quot;Run&quot;,
-    &quot;Go Test.TestMatrixIdentityP in oec/matrix (2).executor&quot;: &quot;Run&quot;,
-    &quot;Go Test.TestMatrixIdentityP in oec/matrix.executor&quot;: &quot;Run&quot;,
-    &quot;Go Test.TestMatrixMultiply in oec/matrix.executor&quot;: &quot;Run&quot;,
-    &quot;Go Test.TestNewMatrix in oec/matrix.executor&quot;: &quot;Run&quot;,
-    &quot;Go Test.TestNewOEC in oec/reedsolomonP.executor&quot;: &quot;Run&quot;,
-    &quot;Go Test.TestVandermondeP in oec/matrix (1).executor&quot;: &quot;Run&quot;,
-    &quot;Go Test.TestVandermondeP in oec/matrix.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.automatic.dependencies.download&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/13287&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultGoTemplateProperty": "Go File",
+    "Go Build.go build oec.executor": "Run",
+    "Go Build.go build oec/test.executor": "Run",
+    "Go Test.TestMatrixIdentity in oec/matrix.executor": "Run",
+    "Go Test.TestMatrixIdentityP in oec/matrix (1).executor": "Run",
+    "Go Test.TestMatrixIdentityP in oec/matrix (2).executor": "Run",
+    "Go Test.TestMatrixIdentityP in oec/matrix.executor": "Run",
+    "Go Test.TestMatrixMultiply in oec/matrix.executor": "Run",
+    "Go Test.TestNewMatrix in oec/matrix.executor": "Run",
+    "Go Test.TestNewOEC in oec/reedsolomonP (1).executor": "Run",
+    "Go Test.TestNewOEC in oec/reedsolomonP.executor": "Run",
+    "Go Test.TestVandermondeP in oec/matrix (1).executor": "Run",
+    "Go Test.TestVandermondeP in oec/matrix.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.automatic.dependencies.download": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "git-widget-placeholder": "main",
+    "go.import.settings.migrated": "true",
+    "go.sdk.automatically.set": "true",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/mycode/gocode/src/oec",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "terminal",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\mycode\gocode\src\oec" />
+      <recent name="D:\mycode\gocode\src\oec\reedsolomonP" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\mycode\gocode\src\oec" />
+      <recent name="D:\mycode\gocode\src\oec\reedsolomonP" />
+      <recent name="D:\mycode\gocode\src\oec\polynomial" />
       <recent name="D:\GoProjects\src\oec" />
     </key>
   </component>
-  <component name="RunManager" selected="Go Test.TestNewOEC in oec/reedsolomonP">
+  <component name="RunManager" selected="Go Build.go build oec">
     <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application" singleton="false">
       <module name="oec" />
       <working_directory value="$PROJECT_DIR$" />
@@ -76,28 +184,31 @@
       <package value="oec" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$" />
+      <option name="run" value="false" />
       <method v="2" />
     </configuration>
-    <configuration name="go build oec/test" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+    <configuration name="go build oec" type="GoApplicationRunConfiguration" factoryName="Go Application" singleton="false" temporary="true" nameIsGenerated="true">
       <module name="oec" />
       <working_directory value="$PROJECT_DIR$" />
+      <sudo value="true" />
       <kind value="PACKAGE" />
-      <package value="oec/test" />
+      <package value="oec" />
       <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$/test/main.go" />
+      <filePath value="$PROJECT_DIR$/main.go" />
+      <option name="run" value="false" />
       <method v="2" />
     </configuration>
-    <configuration name="TestMatrixIdentityP in oec/matrix" type="GoTestRunConfiguration" factoryName="Go Test" singleton="false" temporary="true" nameIsGenerated="true">
+    <configuration name="TestNewOEC in oec/reedsolomonP (1)" type="GoTestRunConfiguration" factoryName="Go Test" singleton="false" temporary="true" nameIsGenerated="true">
       <module name="oec" />
-      <working_directory value="$PROJECT_DIR$/matrix" />
+      <working_directory value="$PROJECT_DIR$/reedsolomonP" />
       <sudo value="true" />
       <root_directory value="$PROJECT_DIR$" />
       <kind value="PACKAGE" />
-      <package value="oec/matrix" />
+      <package value="oec/reedsolomonP" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$" />
       <framework value="gotest" />
-      <pattern value="^\QTestMatrixIdentityP\E$" />
+      <pattern value="^\QTestNewOEC\E$" />
       <method v="2" />
     </configuration>
     <configuration name="TestNewOEC in oec/reedsolomonP" type="GoTestRunConfiguration" factoryName="Go Test" singleton="false" temporary="true" nameIsGenerated="true">
@@ -138,33 +249,50 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Go Build.go build oec/test" />
-      <item itemvalue="Go Test.TestMatrixIdentityP in oec/matrix" />
+      <item itemvalue="Go Build.go build oec" />
+      <item itemvalue="Go Test.TestNewOEC in oec/reedsolomonP (1)" />
       <item itemvalue="Go Test.TestNewOEC in oec/reedsolomonP" />
       <item itemvalue="Go Test.TestVandermondeP in oec/matrix" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Build.go build oec" />
+        <item itemvalue="Go Test.TestNewOEC in oec/reedsolomonP (1)" />
         <item itemvalue="Go Test.TestNewOEC in oec/reedsolomonP" />
-        <item itemvalue="Go Build.go build oec/test" />
         <item itemvalue="Go Test.TestVandermondeP in oec/matrix" />
-        <item itemvalue="Go Test.TestMatrixIdentityP in oec/matrix" />
       </list>
     </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-gosdk-33c477a475b1-e0158606a674-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-241.17011.92" />
-        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-GO-241.17011.92" />
+        <option value="bundled-jdk-9823dce3aa75-b114ca120d71-intellij.indexing.shared.core-IU-242.21829.142" />
+        <option value="bundled-js-predefined-d6986cc7102b-7c0b70fcd90d-JavaScript-IU-242.21829.142" />
       </set>
     </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="628d3798-421e-4a22-b263-3bef902bd10c" name="Changes" comment="" />
+      <created>1730728028432</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1730728028432</updated>
+      <workItem from="1730728030106" duration="9106000" />
+      <workItem from="1730861890666" duration="101000" />
+      <workItem from="1731323847095" duration="5140000" />
+    </task>
+    <servers />
+  </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>
