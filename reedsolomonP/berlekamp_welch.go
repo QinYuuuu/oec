@@ -1,9 +1,10 @@
 package reedsolomonP
 
 import (
+	"errors"
 	"fmt"
 	"math/big"
-	"oec/utils"
+	"sort"
 )
 
 // modAdd 在模p下执行加法
@@ -37,89 +38,255 @@ func modInverse(a, p *big.Int) (*big.Int, error) {
 	return inv, nil
 }
 
-// powerMod computes a^b mod p.
-func powerMod(a, b, p *big.Int) *big.Int {
+// modPow computes a^b modPow p.
+func modPow(a, b, p *big.Int) *big.Int {
 	return new(big.Int).Exp(a, b, p)
 }
 
-// berlekampWelch decodes the received vector using the Berlekamp-Welch algorithm.
-func berlekampWelch(received []*big.Int, n, k int, p *big.Int) (utils.Poly, error) {
-	t := (n - k) / 2 // Number of errors that can be corrected
+func evalPoint(num int, p *big.Int) *big.Int {
+	if num == 0 {
+		return BigZero
+	}
+	return modPow(BigTwo, new(big.Int).SetInt64(int64(num-1)), p)
+}
 
-	// Initialize polynomials Q(x) and E(x)
-	Q, err := utils.NewPoly(t)
-	if err != nil {
-		return utils.Poly{}, err
-	}
-	E, err := utils.NewPoly(t)
-	if err != nil {
-		return utils.Poly{}, err
-	}
-	err = Q.SetCoefficient(0, 1)
-	if err != nil {
-		return utils.Poly{}, err
-	}
-	err = E.SetCoefficient(0, 1)
-	if err != nil {
-		return utils.Poly{}, err
-	}
-
-	// Build the system of equations
+// invertMatrix 矩阵求逆
+func invertMatrix(s, a [][]*big.Int, p *big.Int) error {
+	n := len(s)
 	for i := 0; i < n; i++ {
-		Yi := received[i]
-		S := make([]*big.Int, t+1)
-		for j := 0; j <= t; j++ {
-			xj := powerMod(big.NewInt(int64(i)), big.NewInt(int64(j)), p)
-			S[j] = modMul(Q.EvalMod(xj, p), Yi, p)
-			if j > 0 {
-
-				S[j] = modSub(S[j], modMul(E.Coeff[j-1], Yi, p), p)
+		pivot := s[i][i]
+		if pivot.Sign() == 0 {
+			return errors.New("matrix is singular")
+		}
+		pivotInv, err := modInverse(pivot, p)
+		if err != nil {
+			return err
+		}
+		for j := 0; j < n; j++ {
+			s[i][j] = modMul(s[i][j], pivotInv, p)
+			a[i][j] = modMul(a[i][j], pivotInv, p)
+		}
+		for j := 0; j < n; j++ {
+			if i != j {
+				factor := s[j][i]
+				for k := 0; k < n; k++ {
+					s[j][k] = modSub(s[j][k], modMul(factor, s[i][k], p), p)
+					a[j][k] = modSub(a[j][k], modMul(factor, a[i][k], p), p)
+				}
 			}
 		}
-		for j := t; j > 0; j-- {
-			E.Coeff[j] = E.Coeff[j-1]
-		}
-		E.Coeff[0] = big.NewInt(0)
-		for j := 0; j <= t; j++ {
-			E.Coeff[j] = modAdd(E.Coeff[j], S[j], p)
-		}
 	}
-
-	// Compute the error locator polynomial Omega(x)
-	Omega, err := utils.NewPoly(t + 1)
-	if err != nil {
-		return utils.Poly{}, err
-	}
-	for i := 0; i <= t; i++ {
-		Omega.Coeff[i] = Q.Coeff[t-i]
-	}
-
-	// Chien search to find error locations
-	var errors []int
-	for i := 0; i < n; i++ {
-		sum := big.NewInt(0)
-		for j := 0; j <= t; j++ {
-			sum.Add(sum, modMul(Omega.Coeff[j], powerMod(big.NewInt(int64(i)), big.NewInt(int64(j)), p), p))
-		}
-		if sum.Cmp(big.NewInt(0)) == 0 {
-			errors = append(errors, i)
-		}
-	}
-
-	// If the number of errors found does not match t, decoding failed
-	if len(errors) != t {
-		return utils.Poly{}, fmt.Errorf("decoding failed: found %d errors, expected %d", len(errors), t)
-	}
-
-	// Correct the errors
-	corrected := make([]*big.Int, n)
-	for i := range corrected {
-		corrected[i] = new(big.Int).Set(received[i])
-	}
-	for _, pos := range errors {
-		corrected[pos] = big.NewInt(0) // Here we simply set the error position to 0, in practice you should compute the correct value
-	}
-
-	// Return the decoded information polynomial
-	return utils.FromVecBig(corrected[:k]), nil
+	return nil
 }
+
+// dotProduct 计算两个向量的点积
+func dotProduct(a, b []*big.Int, p *big.Int) *big.Int {
+	result := big.NewInt(0)
+	for i := range a {
+		result.Add(result, modMul(a[i], b[i], p))
+	}
+	return result.Mod(result, p)
+}
+
+// evalPoly 评估多项式在某个点的值
+func evalPoly(poly []*big.Int, x, p *big.Int) *big.Int {
+	result := big.NewInt(0)
+	for i := len(poly) - 1; i >= 0; i-- {
+		result.Mul(result, x)
+		result.Add(result, poly[i])
+		result.Mod(result, p)
+	}
+	return result
+}
+
+// divPolynomials 多项式除法
+func divPolynomials(A, B []*big.Int, p *big.Int) ([]*big.Int, []*big.Int, error) {
+	n := len(A)
+	m := len(B)
+	if m == 0 {
+		return nil, nil, errors.New("division by zero")
+	}
+	if n < m {
+		return []*big.Int{big.NewInt(0)}, A, nil
+	}
+
+	Q := make([]*big.Int, n-m+1)
+	R := make([]*big.Int, len(A))
+	for i := range A {
+		R[i] = new(big.Int).Set(A[i])
+	}
+
+	for i := n - m; i >= 0; i-- {
+		q, err := modInverse(B[m-1], p)
+		if err != nil {
+			return nil, nil, err
+		}
+		q = modMul(R[i+m-1], q, p)
+		Q[i] = new(big.Int).Set(q)
+		for j := 0; j < m; j++ {
+			R[i+j] = modSub(R[i+j], modMul(q, B[j], p), p)
+		}
+	}
+
+	return Q, R, nil
+}
+
+// isZero 检查多项式是否为零
+func isZero(poly []*big.Int) bool {
+	for _, c := range poly {
+		if c.Sign() != 0 {
+			return false
+		}
+	}
+	return true
+}
+
+// BerlekampWelch corrects errors in the data using the Berlekamp-Welch algorithm.
+func (fc *RSGFp) BerlekampWelch(shares []Share, e int) ([]Share, error) {
+	k := fc.k // required size
+
+	q := e + k - 1 // def of Q polynomial
+	fmt.Printf("e=%v, q=%v\n", e, q)
+	if e <= 0 {
+		return nil, errTooFewShards
+	}
+	dim := q + e + 2
+	// build the system of equations s * u = f
+	s := make([][]*big.Int, dim)
+	a := make([][]*big.Int, dim)
+	for i := range s {
+		s[i] = make([]*big.Int, dim)
+	}
+	for i := range s {
+		a[i] = make([]*big.Int, dim)
+	}
+	f := make([]*big.Int, dim)
+	u := make([]*big.Int, dim)
+	for i := range f {
+		f[i] = big.NewInt(0)
+	}
+	f[dim-1] = big.NewInt(1)
+	for i := 0; i < dim-1; i++ {
+		x_i := new(big.Int).SetInt64(int64(shares[i].Number + 1))
+		r_i := shares[i].Data
+		for j := 0; j < q+1; j++ {
+			s[i][j] = modPow(x_i, big.NewInt(int64(j)), fc.p)
+			//s[i][j] = modSub(BigZero, s[i][j], fc.p)
+			if i == j {
+				a[i][j] = big.NewInt(1)
+			} else {
+				a[i][j] = big.NewInt(0)
+			}
+		}
+
+		for l := 0; l < e+1; l++ {
+			j := l + q + 1
+			s[i][j] = modMul(modPow(x_i, big.NewInt(int64(l)), fc.p), r_i, fc.p)
+			if i == j {
+				a[i][j] = big.NewInt(1)
+			} else {
+				a[i][j] = big.NewInt(0)
+			}
+		}
+	}
+	for i := 0; i < dim; i++ {
+		s[dim-1][i] = BigZero
+		a[dim-1][i] = BigZero
+	}
+	s[dim-1][dim-1] = BigOne
+	a[dim-1][dim-1] = BigOne
+	// invert and put the result in a
+	err := invertMatrix(s, a, fc.p)
+	if err != nil {
+		return nil, err
+	}
+	// multiply the inverted matrix by the column vector
+	for i := 0; i < dim; i++ {
+		ri := a[i]
+		u[i] = dotProduct(ri, f, fc.p)
+	}
+
+	// reverse u for easier construction of the polynomials
+	for i := 0; i < len(u)/2; i++ {
+		o := len(u) - i - 1
+		u[i], u[o] = u[o], u[i]
+	}
+
+	qPoly := u[e+1:]
+	// E(x) is monic polynomial
+	ePoly := u[:e+1]
+
+	pPoly, rem, err := divPolynomials(qPoly, ePoly, fc.p)
+	if err != nil {
+		return nil, err
+	}
+
+	if !isZero(rem) {
+		return nil, tooManyErrors
+	}
+
+	out := make([]Share, fc.n)
+	for i := 0; i < fc.n; i++ {
+		fecBuf := new(big.Int).SetInt64(0)
+		for j := 0; j < fc.k; j++ {
+			fecBuf = new(big.Int).Add(fecBuf, new(big.Int).Mul(pPoly[k-j-1], fc.encMatrix[i][j]))
+			fecBuf.Mod(fecBuf, fc.p)
+		}
+
+		out[i] = Share{
+			Number: i,
+			Data:   fecBuf,
+		}
+	}
+	return out, nil
+}
+
+// Correct corrects the errors in the shares using the Berlekamp-Welch algorithm.
+func (fc *RSGFp) Correct(shares []Share) ([]Share, error) {
+	k := fc.k
+	r := len(shares)
+	if len(shares) < k {
+		return nil, errTooFewShards
+	}
+
+	// Sort the shares by their number
+	sort.Sort(byNumber(shares))
+
+	e := (r - k) / 2
+	// Use Berlekamp-Welch algorithm to correct errors
+	for i := 0; i <= e; i++ {
+		correctedShares, err := fc.BerlekampWelch(shares, i)
+		if err != nil {
+			continue
+		}
+		//fmt.Printf("correctedData: %v\n", correctedShares)
+		return correctedShares, nil
+	}
+	return nil, tooManyErrors
+}
+
+/*
+// Decode will take a list of shares and decode the original data.
+func (oec *RSGFp) Decode(shares []Share, output func(Share)) error {
+	k := oec.k
+
+	if len(shares) < k {
+		return errTooFewShards
+	}
+
+	// Correct any errors in the shares
+	correctedShares, err := oec.Correct(shares)
+	if err != nil {
+		return err
+	}
+
+	// Sort the shares by their number
+	sort.Sort(byNumber(correctedShares))
+
+	err = oec.Rebuild(correctedShares, output)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+*/

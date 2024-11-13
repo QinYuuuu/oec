@@ -34,27 +34,22 @@ func NewRSGFp(k, n int, p *big.Int) (*RSGFp, error) {
 	}, nil
 }
 
-// ErrTooFewShards is returned if too few shards where given to
-// Encode/Verify/Reconstruct/Update. It will also be returned from Reconstruct
-// if there were too few shards to reconstruct the missing data.
-var ErrTooFewShards = errors.New("too few shards given")
-
 // Encode will take input data and encode to the total number of pieces n this
 // *FEC is configured for.
 //
 // The input data must be a multiple of the required number of pieces k.
 // Padding to this multiple is up to the caller.
-func (oec *RSGFp) Encode(input []*big.Int) ([]Share, error) {
-	if len(input) < oec.k {
-		return nil, ErrTooFewShards
+func (fc *RSGFp) Encode(input []*big.Int) ([]Share, error) {
+	if len(input) < fc.k {
+		return nil, errTooFewShards
 	}
-	output := make([]Share, oec.n)
+	output := make([]Share, fc.n)
 
-	for i := 0; i < oec.n; i++ {
+	for i := 0; i < fc.n; i++ {
 		fecBuf := new(big.Int).SetInt64(0)
-		for j := 0; j < oec.k; j++ {
-			fecBuf = new(big.Int).Add(fecBuf, new(big.Int).Mul(input[j], oec.encMatrix[i][j]))
-			fecBuf.Mod(fecBuf, oec.p)
+		for j := 0; j < fc.k; j++ {
+			fecBuf = new(big.Int).Add(fecBuf, new(big.Int).Mul(input[j], fc.encMatrix[i][j]))
+			fecBuf.Mod(fecBuf, fc.p)
 		}
 
 		output[i] = Share{
@@ -77,79 +72,77 @@ func (oec *RSGFp) Encode(input []*big.Int) ([]Share, error) {
 // output returns.
 //
 // Rebuild assumes that you have already called Correct or did not need to.
-func (oec *RSGFp) Rebuild(shares []Share, output func(Share)) error {
-	k := oec.k
-	n := oec.n
-	encMatrix := oec.encMatrix
+func (fc *RSGFp) Rebuild(shares []Share, output func(Share)) error {
+	k := fc.k
+	n := fc.n
+	encMatrix := fc.encMatrix
 
 	if len(shares) < k {
-		return ErrTooFewShards
+		return errTooFewShards
 	}
 
 	sort.Sort(byNumber(shares))
 	fmt.Println(shares)
-	mDec := make([][]*big.Int, k)
-	for i := 0; i < k; i++ {
+
+	// Initialize the decoding matrix and vectors
+	var mDec P
+	mDec = make([][]*big.Int, k)
+	for i := range mDec {
 		mDec[i] = make([]*big.Int, k)
 	}
 	indexes := make([]int, k)
 	sharesv := make([]*big.Int, k)
 
-	sharesBIter := 0
-	sharesEIter := len(shares) - 1
-
+	// Fill the decoding matrix and vectors
 	for i := 0; i < k; i++ {
-		var shareID int
-		var shareData *big.Int
-		share := shares[sharesBIter]
-		if share.Number == i {
-			shareID = share.Number
-			shareData = share.Data
-			sharesBIter++
+		share := shares[i]
+		if share.Number >= n {
+			return fmt.Errorf("invalid share id: %d", share.Number)
+		}
+
+		if share.Number < k {
+			mDec[i][share.Number] = BigOne
 		} else {
-			share1 := shares[sharesEIter]
-			shareID = share1.Number
-			shareData = share1.Data
-			sharesEIter--
+			copy(mDec[i], encMatrix[share.Number][:k])
 		}
 
-		if shareID >= n {
-			return fmt.Errorf("invalid share id: %d", shareID)
-		}
+		sharesv[i] = share.Data
+		indexes[i] = share.Number
+	}
+	fmt.Println(mDec)
 
-		if shareID < k {
-			mDec[i][i] = BigOne
+	invMDec, err := mDec.Invert(fc.p)
+	if err != nil {
+		return err
+	}
+	fmt.Println(invMDec)
+	fmt.Println(sharesv)
+	// Solve the system of linear equations to find the original data
+	originalData := make([]*big.Int, k)
+	for i := 0; i < k; i++ {
+		if indexes[i] < k {
+			originalData[indexes[i]] = sharesv[i]
 			if output != nil {
 				output(Share{
-					Number: shareID,
-					Data:   shareData})
+					Number: indexes[i],
+					Data:   sharesv[i],
+				})
 			}
 		} else {
-			copy(mDec[i], encMatrix[shareID][:k])
-		}
-
-		sharesv[i] = shareData
-		indexes[i] = shareID
-	}
-
-	// Solve the system of linear equations to find the original data
-	var buf *big.Int
-	for i := 0; i < k; i++ {
-		if indexes[i] >= k {
-			// Calculate the data for the missing share
-			buf = big.NewInt(0)
-			for col := 0; col < k; col++ {
-				product := new(big.Int).Mul(sharesv[col], mDec[i][col])
+			buf := big.NewInt(0)
+			for j := 0; j < k; j++ {
+				product := new(big.Int).Mul(sharesv[j], invMDec[i][j])
 				buf.Add(buf, product)
-				buf.Mod(buf, oec.p)
+				buf.Mod(buf, fc.p)
 			}
+			originalData[i] = buf
 			if output != nil {
 				output(Share{
 					Number: i,
-					Data:   buf})
+					Data:   buf,
+				})
 			}
 		}
 	}
-
 	return nil
 }

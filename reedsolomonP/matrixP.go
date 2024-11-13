@@ -1,7 +1,6 @@
 package reedsolomonP
 
 import (
-	"errors"
 	"fmt"
 	"math/big"
 	"strings"
@@ -11,6 +10,7 @@ type P [][]*big.Int
 
 var BigZero = big.NewInt(0)
 var BigOne = big.NewInt(1)
+var BigTwo = big.NewInt(2)
 
 // newMatrix returns a matrix of zeros.
 func newMatrixP(rows, cols int) (P, error) {
@@ -177,6 +177,7 @@ func (m P) Invert(p *big.Int) (P, error) {
 
 	size := len(m)
 	work, _ := identityMatrixP(size)
+
 	work, _ = m.Augment(work)
 
 	err := work.gaussianElimination(p)
@@ -187,60 +188,42 @@ func (m P) Invert(p *big.Int) (P, error) {
 	return work.SubMatrix(0, size, size, size*2)
 }
 
+// gaussianElimination performs Gaussian elimination on the matrix.
 func (m P) gaussianElimination(p *big.Int) error {
-	rows := len(m)
-	columns := len(m[0])
-	// Clear out the part below the main diagonal and scale the main
-	// diagonal to be 1.
-	for r := 0; r < rows; r++ {
-		// If the element on the diagonal is 0, find a row below
-		// that has a non-zero and swap them.
-		if m[r][r].Cmp(BigZero) == 0 {
-			for rowBelow := r + 1; rowBelow < rows; rowBelow++ {
-				if m[rowBelow][r].Cmp(BigZero) != 0 {
-					err := m.SwapRows(r, rowBelow)
-					if err != nil {
-						return err
-					}
-					break
-				}
+	n := len(m)
+	for i := 0; i < n; i++ {
+		// Find the pivot row
+		pivotRow := i
+		for j := i + 1; j < n; j++ {
+			if (m)[j][i].Cmp(big.NewInt(0)) != 0 {
+				pivotRow = j
+				break
 			}
 		}
-		// If we couldn't find one, the matrix is singular.
-		if m[r][r].Cmp(BigZero) == 0 {
-			return errors.New("matrix is singular")
-		}
-		// Scale to 1.
-		if m[r][r].Cmp(BigOne) != 0 {
-			scale := new(big.Int).ModInverse(m[r][r], p)
-			for c := 0; c < columns; c++ {
-				m[r][c] = new(big.Int).Mod(new(big.Int).Mul(m[r][c], scale), p)
-			}
-		}
-		// Make everything below the 1 be a 0 by subtracting
-		// a multiple of it.  (Subtraction and addition are
-		// both exclusive or in the Galois field.)
-		for rowBelow := r + 1; rowBelow < rows; rowBelow++ {
-			if m[rowBelow][r].Cmp(BigOne) != 0 {
-				scale := m[rowBelow][r]
-				for c := 0; c < columns; c++ {
-					tmp := new(big.Int).Mul(scale, m[r][c])
-					m[rowBelow][c] = new(big.Int).Mod(new(big.Int).Add(m[rowBelow][c], tmp), p)
-				}
-			}
-		}
-	}
 
-	// Now clear the part above the main diagonal.
-	for d := 0; d < rows; d++ {
-		for rowAbove := 0; rowAbove < d; rowAbove++ {
-			if m[rowAbove][d].Cmp(BigZero) != 0 {
-				scale := m[rowAbove][d]
-				for c := 0; c < columns; c++ {
-					tmp := new(big.Int).Mul(scale, m[d][c])
-					m[rowAbove][c] = new(big.Int).Mod(new(big.Int).Add(m[rowAbove][c], tmp), p)
-				}
+		if (m)[pivotRow][i].Cmp(big.NewInt(0)) == 0 {
+			return errSingular
+		}
 
+		// Swap the current row with the pivot row
+		(m)[i], (m)[pivotRow] = (m)[pivotRow], (m)[i]
+
+		// Make the pivot element 1
+		pivotInv, err := modInverse((m)[i][i], p)
+		if err != nil {
+			return err
+		}
+		for j := i; j < 2*n; j++ {
+			(m)[i][j] = modMul((m)[i][j], pivotInv, p)
+		}
+
+		// Eliminate the other rows
+		for k := 0; k < n; k++ {
+			if k != i {
+				factor := (m)[k][i]
+				for j := i; j < 2*n; j++ {
+					(m)[k][j] = modSub((m)[k][j], modMul((m)[i][j], factor, p), p)
+				}
 			}
 		}
 	}
